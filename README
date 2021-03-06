@@ -1,0 +1,162 @@
+Author: Nick House
+Project: P1
+Course: CS-4760 Operating Systems
+Directory Name: house.1
+Included Files: doenv.c, Makefile, README
+Executable Name: doenv
+
+What doenv (this Program) Does: 
+  This program mimics some functionalities within the env utility. 
+  Mainly doenv allows the user to edit their environment's name value
+  pairs and pass commands using these environment parameters.
+
+To Execute programs doenv - from house.1 directory:
+
+ 1) Execute Makefile 
+    $ make
+
+ 2) Run doenv
+    $ ./doenv
+
+    This program can be run with option -i, -h or no options
+     -i: This will erase all existing environment parameter
+     -h: This will display the Help Page
+       : No option No envrionment parameters will be erased
+    
+    To add/modify environment parameters add NAME=VALUE 
+    
+    If No arguments are passed the envrironment will be printed to stdout 	
+  
+    Commands may be passed after wanted  environment NAME=VALUE's has been set	
+
+  USAGE: ./doenv	=> Prints Environment
+	 ./doenv -h	=> Prints Help
+	 
+	 ./doenv [-i] [NAME=VALUE] [NAME=VALUE] [...] {COMMAND1 [; COMMAND2] [; ...] }
+
+
+Project Notes: 
+ 
+    A couple differences I noticed in the behavior of doenv and the utility env which it 
+  mimics. 
+
+  1)I spent a good number of hours on this issue, looking for difference in doenv and env.
+
+   When utility env or doenv is called from doenv, three environment variables 
+  are always created ( "_", "PWD", and "SHLVL"). Contrarily when env is called similarly
+  no additional environment variables are created. Upon quite a bit of researching I 
+  believe the difference is how they are executed. The program doenv utilizes system(3)
+  to execute its' utility. When system(3) creates a new shell which can also generate
+  environment variables for its' child process, which is what looks to be happening here.
+  The utility env is executed using exec(), which the command passed in exec replaces 
+  the current shell which means no subshell is created and the current process is replaced
+  with the new command. Utility env is not inherently operating in a sub process because 
+  it uses exec, doenv operates under a new subshell using system and is subject to variable
+  the parent may or may not make. I would guess, if doenv called its utility using exec() 
+  I would see the same behavior witnessed when using env in this particular test. 
+
+  Example Output: ./doenv
+
+       	$./doenv -i x=5 env   => ./doenv can also be passed as the argument with same result
+       	PWD=/Classes/OS/house/house.1
+       	SHLVL=1
+	x=5
+	_=usr/bin/env
+
+  Example Output: env
+
+	$env -i x=5 env
+	x=5
+
+
+  2) Difference in accesing variable reference as arguments. 
+ 
+   When Try to pass a variable for its value (if x=env, $x) in the command line functions 
+  differently between doenv and env. The shell will look for the value of a variable in the 
+  current shell when when passed into the argument. If this variable has not been defined in 
+  the current shell it as expected passes null. Thus when a variable is created using doenv 
+  is wanted to be used in the defined environment utility a '\' is needed to keep the shell
+  from being interpreted '$' and passing it as an argument to argv. But when using env, there
+  is no need to use a backslash. I am not completely sure I understand why env treates this 
+  differently, I am thinking it is because env might be a known variable in the shell library.  
+
+  Example Output: ./doenv 
+
+	$./doenv -i x=./doenv $x
+ 	$./doenv -i x=./doenv \$x
+	x=./doenv   => the other NAME=VALUE pairs are also return as noted in discrepancy above
+	
+  Example Output: env
+	$env -i x=env $x
+	x=env
+	$env -i x=env \$x
+ 	env: $x: No Such File or Directory
+
+
+====== Project 1 Version Control History =======
+
+commit 4669e31cd4dda0742a33d0d15a500ade5806a89f
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Mon Feb 8 14:43:48 2021 -0600
+
+    Final test and clean up
+
+commit 5c8fa7190f39f622dd032f2956c9d4c82c540f46
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Sun Feb 7 16:15:16 2021 -0600
+
+    doenv tested, Readme Created
+
+commit 15f1e53e95ee969aeeb8d5d0e202b60dfe75507f
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Sat Feb 6 17:38:44 2021 -0600
+
+    Need to creaet readme and test
+
+commit 06fd407632e95ae29a3e2396917daad298e03f35
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Thu Feb 4 22:40:02 2021 -0600
+
+    Need to add error and clean up funcitons
+
+commit 3de73220f0c0557f93904ed7fd197376518ac39c
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Thu Feb 4 16:41:56 2021 -0600
+
+    Worked through errors, possible utility debut and err handling remaining
+
+commit b69bb17d15642666839069c098eb319825c79625
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Thu Feb 4 00:26:19 2021 -0600
+
+    Bulk of project in place, debugging needed for build function as well as utility
+
+commit 2e7b3fde57f75157714004b9e59fccfa9f36af22
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Wed Feb 3 17:46:34 2021 -0600
+
+    Additions to doenv
+
+commit 603910953ed99b77fda06f1cdaabed2ec5318a1b
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Wed Feb 3 12:43:26 2021 -0600
+
+    Pushing all Files
+
+commit a1fd3f5141b59898c2937c4c4f23c04eaf683ad7
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Mon Feb 1 14:29:25 2021 -0600
+
+    Updating Files
+
+commit 169a3e52682ca9a3cd99c64478f99224704220b4
+Author: Nick House <nh6gy@umsystem.edu>
+Date:   Sun Jan 31 21:24:56 2021 -0600
+
+    Completed Step 1, Started implementing Step 2
+
+commit 21d5278208316818fedd6e6972436b91b8b0fc27
+Author: Nick House <house@hoare7.cs.umsl.edu>
+Date:   Thu Jan 28 00:23:29 2021 -0600
+
+    Created Makefile and started main project file with basic input recognition.
